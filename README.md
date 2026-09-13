@@ -24,7 +24,7 @@ Set `DATA_ROOT`, `MODEL_ROOT` and `RESULTS_ROOT` as required by each script. Rep
 
 ## Paper settings
 
-- **U-Net:** base width **96**, depth **6**, five input channels, GroupNorm and pole-aware latitude padding. See [run configuration](configs/unet/unet_run_config.json). Generic model/training defaults (`32/4`) are not the paper settings; training requires explicit arguments, while inference loads the checkpoint's settings.
+- **U-Net:** base width **96**, depth **6**, five input channels, GroupNorm and pole-aware latitude padding. See [run configuration](configs/unet/unet_run_config.json).
 - **EOF–CCA:** Kx = 10592, Ky = 512, r = 512, ridge = 0.
 
 Paper skill is `1 − RMSE_method / RMSE_reference`. Some legacy reducers also output MSE-ratio skill; use the `rmse-skill` command in [the final reducer](code/evaluation/ssp585/reduce_and_report.py) for the paper statistic.
