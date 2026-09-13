@@ -1,0 +1,279 @@
+{
+ "algorithm": {
+  "accumulator_dtype": "float64",
+  "anomaly_block_dtype_heavy": "float32",
+  "basis_arrays_dtype": "float32",
+  "canonical_phases": [
+   "plan",
+   "smoke-synthetic",
+   "smoke-real-mini",
+   "gram-block",
+   "reduce-gram",
+   "temporal-eig",
+   "eof-block",
+   "assemble"
+  ],
+  "global_reduction_required": true,
+  "gram_chunk_pixels": 8192,
+  "heavy_phases_implemented": true,
+  "method": "method_of_snapshots_temporal_gram",
+  "name": "old_weighted_temporal_subspace_then_fullres_spatial_rotation",
+  "old_convention_source": "stage_c3_kind_worker.py and residual_r1024_c2c3_calibration.py",
+  "spatial_block_count": 52,
+  "spatial_block_parallelism": true,
+  "spatial_block_pixels": 65536,
+  "temporal_gram_bytes_float64": 897693192,
+  "temporal_gram_shape": [
+   10593,
+   10593
+  ]
+ },
+ "area_weight_application": "for EOF/SVD inner product only; physical fields remain target-normalized temperature fields",
+ "area_weight_formula": "cos(latitude_center)/mean(cos(latitude_center))",
+ "clean_run_root": "${RESULTS_ROOT}/cca_final_run",
+ "contract_version": "cca_final_run_artifact_contract_v1",
+ "creation_mode": "recompute_from_train_split",
+ "disk_preflight_observed": {
+  "home_user_quota": {
+   "current_usage_gib_about": 12,
+   "free_quota_gib_about": 48,
+   "policy": "control-plane only for Stage 01 heavy work",
+   "quota_gib": 60
+  },
+  "other_project_storage": {
+   "policy": "do not use unless explicitly approved later",
+   "remaining_tib_about": 4
+  },
+  "recommendation": "Use /home as the Stage 01 control plane and ${RESULTS_ROOT} as the temporary heavy data plane. Do not write new outputs to /work.",
+  "scratch_user_quota": {
+   "archival": false,
+   "filesystem_space": "sufficient for Stage 01 heavy outputs per user-provided storage facts",
+   "lifetime_days_since_last_access": 14,
+   "quota_tib": 15
+  },
+  "work_preproc_filesystem": {
+   "policy": "read-only for new outputs; project  is effectively full/quota-risky"
+  }
+ },
+ "expected_grid_shape": [
+  1280,
+  2624
+ ],
+ "expected_train_days": 10593,
+ "expected_train_shards": 83,
+ "expected_validation_days": 1095,
+ "expected_validation_shards_excluded_from_eof_fit": 9,
+ "gram_reuse": {
+  "copied_to": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/stage01_work/x_input/gram_reduced/gram_total.npy",
+  "copy_route": "byte-copied from the sha256-verified kx4096 copy ${RESULTS_ROOT}/cca_final_run_20260704_kx4096/outputs_heavy/eof_bases/stage01_work/x_input/gram_reduced/gram_total.npy; ORIGINAL source is the completed 20260703 X Stage 01 run",
+  "policy": "The X temporal Gram (gram_total.npy) depends only on train data, mean, sqrt-area-weights, grid, and 65536-pixel blocking; it does not depend on max_modes (truncation happens at temporal-eig) or on the config sha. phase_temporal_eig accepts it via gram_ident_compatible(), which requires every ident key to match except config_sha256 and max_modes.",
+  "sha256": "d0489b8c60920984240575e09d3bf9e1c63a5cbf56d7916059b0e18f7d81fb1b",
+  "skipped_phases": [
+   "gram-block",
+   "reduce-gram"
+  ],
+  "source_gram_npy": "${RESULTS_ROOT}/cca_final_run_20260703/outputs_heavy/eof_bases/stage01_work/x_input/gram_reduced/gram_total.npy",
+  "source_ident_train_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363"
+ },
+ "grid_recommendation_source_path": "${RESULTS_ROOT}/cca_final_run/config/cca_grid_recommendation_kx10592.json",
+ "grid_recommendation_status": "adopted_for_kx10592_max_rank_final",
+ "heavy_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy",
+ "home_current_usage_gib_about": 12,
+ "home_free_quota_gib_about": 48,
+ "home_heavy_outputs_allowed": false,
+ "home_output_root": "${RESULTS_ROOT}/cca_final_run/outputs",
+ "home_quota_gib": 60,
+ "home_run_root": "${RESULTS_ROOT}/cca_final_run",
+ "intended_heavy_outputs": {
+  "stage01_work_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/stage01_work",
+  "x_basis_npz": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/x_input_eof_basis_maxK10592.npz",
+  "x_stage01_work_dir": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/stage01_work/x_input"
+ },
+ "intended_outputs": {
+  "heavy_artifact_manifest_json": "${RESULTS_ROOT}/cca_final_run/outputs/eof_bases/heavy_artifact_manifest.json",
+  "metadata_json": "${RESULTS_ROOT}/cca_final_run/outputs/eof_bases/eof_metadata.json",
+  "scratch_lifetime_warning_json": "${RESULTS_ROOT}/cca_final_run/outputs/eof_bases/scratch_lifetime_warning.json",
+  "stage_status_json": "${RESULTS_ROOT}/cca_final_run/outputs/eof_bases/stage01_status.json",
+  "variance_spectra_csv": "${RESULTS_ROOT}/cca_final_run/outputs/eof_bases/eof_variance_spectra.csv"
+ },
+ "kind_configs": {
+  "x_input": {
+   "basis_label": "x_input",
+   "description": "X predictor side: bilinear baseline T2M converted to target-normalized units by Stage A",
+   "max_modes": 10592,
+   "mean_path": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/fullres-stage-b-stats-20260625T162319Z/means/train_baseline_mean.npy",
+   "output_npz": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/x_input_eof_basis_maxK10592.npz",
+   "source_manifest_column": "baseline_path",
+   "source_units": "target_normalized_T2M_units",
+   "work_dir": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/stage01_work/x_input"
+  }
+ },
+ "kx_grid": [
+  4,
+  8,
+  16,
+  32,
+  64,
+  128,
+  256,
+  512,
+  1024,
+  2048,
+  4096,
+  8192,
+  10592
+ ],
+ "ky_grid": [
+  4,
+  8,
+  16,
+  32,
+  64,
+  128,
+  256,
+  512,
+  1024
+ ],
+ "maxKx": 10592,
+ "maxKy": 1024,
+ "max_r": 1024,
+ "max_rank_note": "maxKx=10592 = n_train-1 = rank of centered training data; eig_from_gram clamps negative eigenvalues to 0 and u_over_s zero-fills any rank-deficient tail columns, so k is exactly 10592 regardless of numerical rank.",
+ "no_test_access": true,
+ "non_final_dev_only": false,
+ "output_root": "${RESULTS_ROOT}/cca_final_run/outputs",
+ "parallel_plan": {
+  "array_throttle": "%20",
+  "heavy_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy",
+  "home_manifest_root": "${RESULTS_ROOT}/cca_final_run/outputs/eof_bases",
+  "max_simultaneous_jobs": 20,
+  "safe_to_run_x_and_y_concurrently": "n/a: Y is reused, X only",
+  "slurm_partition": "compute",
+  "stage01_sbatch_templates": [
+   "${RESULTS_ROOT}/cca_final_run/sbatch/01_build_eof_bases_x_kx10592.sbatch"
+  ],
+  "tmp_root": "${RESULTS_ROOT}/tmp/cca_final_run_20260704_kx10592",
+  "x_input_independent_of_y_residual": true
+ },
+ "production_execution_approved": true,
+ "r_grid": [
+  4,
+  8,
+  16,
+  32,
+  64,
+  128,
+  256,
+  512,
+  1024
+ ],
+ "reference_scripts_read_only": {
+  "old_cca_driver": "${REPO_ROOT}/scripts/run_fullres_cca_predeclared_grid.py",
+  "old_residual_r1024_calibration": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/residual_r1024_calibration_20260626T164941Z/scripts/residual_r1024_c2c3_calibration.py",
+  "old_stage_a_builder": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/scripts/build_fullres_br_shards_20260625T155202Z.py",
+  "old_stage_c3_kind_worker": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/stage_c3_true_eof_variance_20260626T160800Z/scripts/stage_c3_kind_worker.py"
+ },
+ "ridge_alpha_grid": [
+  0.0
+ ],
+ "run_id": "cca_final_run_20260704_kx10592",
+ "safety": {
+  "dry_run_only_current_scaffold": false,
+  "heavy_phase_config_gate": "production_execution_approved must be true",
+  "heavy_phase_env_guard": "CCA_STAGE01_ENABLE_REAL_RUN=1",
+  "home_control_plane_only": true,
+  "overwrite_default": false,
+  "refuse_heavy_output_outside_scratch_user_tree": true,
+  "refuse_home_heavy_outputs": true,
+  "refuse_output_outside_clean_outputs": true,
+  "refuse_sealed_test_paths": true,
+  "refuse_work_outputs": true,
+  "scratch_write_probe_default": false,
+  "train_split_only_for_eof_fit": true,
+  "work_is_read_only_for_new_outputs": true
+ },
+ "scratch_is_archival": false,
+ "scratch_lifetime_days_since_last_access": 14,
+ "smoke": {
+  "home_diagnostics_dir": "${RESULTS_ROOT}/cca_final_run/diagnostics/stage01_smoke",
+  "labels": {
+   "non_scientific_smoke": true,
+   "not_final_eof_basis": true,
+   "not_for_selection": true
+  },
+  "real_mini_max_crop": [
+   128,
+   128
+  ],
+  "real_mini_max_days": 4,
+  "smoke_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/stage01_smoke"
+ },
+ "source_metadata_paths": {
+  "grid_recommendation": "${RESULTS_ROOT}/cca_final_run_20260704_kx4096/config/cca_grid_recommendation_kx4096.json",
+  "stage00_input_hashes": "${RESULTS_ROOT}/cca_final_run_20260703/outputs/manifests/input_hashes.json",
+  "stage00_preflight_report": "${RESULTS_ROOT}/cca_final_run_20260703/outputs/manifests/preflight_report.json",
+  "stage00_run_manifest": "${RESULTS_ROOT}/cca_final_run_20260703/outputs/manifests/run_manifest.json",
+  "stage_a_metadata": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/fullres-br-shards-20260625T155202Z/stage_a_metadata.json",
+  "stage_b_metadata": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/fullres-stage-b-stats-20260625T162319Z/stage_b_metadata.json"
+ },
+ "source_train_manifest": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/fullres-br-shards-20260625T155202Z/manifests/fullres_br_shards_manifest.tsv",
+ "sqrt_weighting_convention": {
+  "double_weighting_warning": "Do not multiply stored eofs_weighted by weights again during projection; weights apply only to the centered field side.",
+  "fit": "centered train anomaly is multiplied by sqrt(area_weight) before temporal SVD/spatial EOF construction",
+  "projection": "score = dot((field - train_mean) * sqrt(area_weight), eofs_weighted)",
+  "reconstruction": "field_anomaly = dot(scores, eofs_weighted) / sqrt(area_weight); then add train_mean",
+  "stored_eofs": "eofs_weighted are orthonormal in weighted pixel space, not physical unweighted EOF maps"
+ },
+ "stage": "01_build_eof_bases",
+ "static_grid_field_variables": {
+  "cl": "cl",
+  "latitude": "coord:lat",
+  "longitude": "coord:lon",
+  "lsm": "lsm",
+  "orography": "var129"
+ },
+ "static_grid_fields": {
+  "cl": "${DATA_ROOT}/grids/static_masks/surface_fractions_hr.nc",
+  "latitude": "${DATA_ROOT}/grids/static_masks/surface_fractions_hr.nc",
+  "longitude": "${DATA_ROOT}/grids/static_masks/surface_fractions_hr.nc",
+  "lsm": "${DATA_ROOT}/grids/static_masks/surface_fractions_hr.nc",
+  "notes": "PROPOSED: high-confidence static/grid sources from U-Net canonical sidecar and orography metadata. Variable names are recorded in top-level static_grid_field_variables. Original cca_preflight_config.json is intentionally unchanged.",
+  "orography": "${DATA_ROOT}/grids/oro_hr.nc"
+ },
+ "storage_architecture": {
+  "home_control_plane": "${RESULTS_ROOT}/cca_final_run_20260703",
+  "home_output_root": "${RESULTS_ROOT}/cca_final_run_20260703/outputs",
+  "home_policy": "Lightweight configs, code, docs, logs, status, and pointer manifests only; no heavy basis arrays.",
+  "preservation_policy": "Final heavy artifacts must be copied or preserved to a stable archival target once one is approved.",
+  "scratch_heavy_data_plane": "${RESULTS_ROOT}/cca_final_run_20260703/outputs_heavy",
+  "scratch_lifetime_warning": "Scratch files have a 14-day lifetime since last access. Access may reset the timer, but scratch is not archival.",
+  "scratch_policy": "Heavy EOF basis arrays and large intermediates only; temporary, not archival.",
+  "tmp_root": "${RESULTS_ROOT}/tmp/cca_final_run_20260703",
+  "work_policy": "Read-only for new outputs because project work quota is full/quota-risky."
+ },
+ "storage_estimate_bytes": {
+  "one_mean_float32": 13434880,
+  "pixels": 3358720,
+  "temporal_gram_float64": 897693192,
+  "temporal_u_maxK10592_float64": 897608448,
+  "train_x_scores_float32_stage02": 448804224,
+  "val_x_scores_float32_stage02": 46392960,
+  "x_A_block_65536_float32": 2776891392,
+  "x_A_block_65536_float64": 5553782784,
+  "x_eof_rows_block_65536_float64": 5553258496,
+  "x_eofs_weighted_float32": 142302248960,
+  "x_full_A_if_materialized_float64": 284631367680
+ },
+ "target_std_K": 21.627892139211994,
+ "test_split_accessed": false,
+ "tmp_root": "${RESULTS_ROOT}/tmp/cca_final_run_20260704_kx10592",
+ "valid_combo_rule": "r <= min(kx, ky)",
+ "valid_row_count": 465,
+ "validation_used_for_eof_fit": false,
+ "work_is_read_only_for_new_outputs": true,
+ "y_residual_reuse": {
+  "policy": "Y residual EOF basis and Y scores are REUSED from cca_final_run_20260703 and are intentionally absent from kind_configs so Stage 01 cannot rebuild Y in this root.",
+  "reused_y_basis_done_json": "${RESULTS_ROOT}/cca_final_run_20260703/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz.done.json",
+  "reused_y_basis_npz": "${RESULTS_ROOT}/cca_final_run_20260703/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz",
+  "symlinked_at": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz"
+ }
+}

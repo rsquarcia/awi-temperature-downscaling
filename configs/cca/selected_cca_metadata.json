@@ -1,0 +1,144 @@
+{
+ "caveat": "validation-selected; validation metrics here are model-selection metrics, not unbiased final claims; sealed test untouched",
+ "created_utc": "2026-07-04T20:03:57Z",
+ "fit_diagnostics": {
+  "sxx": {
+   "max_eig": 213304.50059562048,
+   "min_eig": 0.0036099847909387703,
+   "min_kept_eig": 0.0036099847909387703,
+   "n_dropped": 0
+  },
+  "syy": {
+   "max_eig": 271.8649717234337,
+   "min_eig": 0.2566607090069526,
+   "min_kept_eig": 0.2566607090069526,
+   "n_dropped": 0
+  }
+ },
+ "ident": {
+  "config_sha256": "945780264b398e2045c3306428ef9903b3e0083f981e45f0b2ebd3737590fffc",
+  "grid": {
+   "kx_values": [
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024,
+    2048,
+    4096,
+    8192,
+    10592
+   ],
+   "ky_values": [
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+   ],
+   "r_values": [
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+   ],
+   "ridge_alpha_values": [
+    0.0
+   ]
+  },
+  "grid_shape": [
+   1280,
+   2624
+  ],
+  "kx_max": 10592,
+  "ky_max": 1024,
+  "metric_constants_sha256": "5842ed4ad292b644f67785b5e0c7a2ebc237bb6008a735af4a419c4b5d81f554",
+  "mode": "production",
+  "n_pixels": 3358720,
+  "n_train": 10593,
+  "n_val": 1095,
+  "phase": "run-grid",
+  "score_done_sha256s": {
+   "train_x": "33880e72afe598ba31addf0ef798f3ebeb2fac0643125e0fcfc7c7b580bbb670",
+   "train_y": "25079db658ae4ad92488826d77e8d4a8a94c570792bda6d45b324285d2b44d20",
+   "val_x": "5958bdc673df96ca19d5a10b4856e0f35883f865c8cc420518ac550e7c9f98f7",
+   "val_y": "3970d9acd203cfbd973a2587c98604498b522e87034bd56b2a5ee7aa491e933d"
+  },
+  "stage": "03_run_cca_grid",
+  "valid_rows": 465,
+  "y_basis_done_sha256": "bb6bf5fa60a2f04122740236f260dbd3ef7bca09cbf33e7e90340e9a391dc18c"
+ },
+ "metric_constants": {
+  "train_centered_weighted_sse": 12703435.993178232,
+  "train_mean_weighted_norm2": 2363.452341694817,
+  "train_raw_weighted_sse": 37739486.64875142,
+  "val_centered_weighted_sse": 1294493.0595564481,
+  "val_raw_weighted_sse": 3884096.426731987
+ },
+ "prediction_formula": "yhat_scores = (x_scores[:, :Kx] - x_score_mean) @ B + y_score_mean; predicted field = bilinear + train_residual_mean + yhat_scores @ y_eofs_weighted[:Ky] / sqrt_weight",
+ "selected": {
+  "Kx": 10592,
+  "Ky": 512,
+  "first_canonical_corr": 1.0000000000344904,
+  "fit_status": "ok",
+  "mean_canonical_corr_retained": 0.9999999999999797,
+  "min_canonical_corr_retained": 0.9999999999524999,
+  "notes": "",
+  "r": 512,
+  "ridge_alpha": 0.0,
+  "train_amplitude_ratio": 0.7930493180790282,
+  "train_correction_corr": 0.9999999999999993,
+  "train_mse_K2": 0.00013249135080110525,
+  "train_mse_K2_physical": 0.06197491188732945,
+  "train_mse_norm2": 0.00013249135080110525,
+  "train_predicted_residual_rms_K": 0.014985264452555007,
+  "train_predicted_residual_rms_K_physical": 0.3240996832574274,
+  "train_predicted_residual_rms_norm": 0.014985264452555007,
+  "train_required_residual_rms_K": 0.018895753531259843,
+  "train_required_residual_rms_K_physical": 0.40867531926322204,
+  "train_required_residual_rms_norm": 0.018895753531259843,
+  "train_rmse_K": 0.011510488729897843,
+  "train_rmse_K_physical": 0.2489476087198458,
+  "train_rmse_norm": 0.011510488729897843,
+  "train_skill_vs_bilinear": 0.8750937090928312,
+  "val_amplitude_ratio": 0.7445425671781837,
+  "val_correction_corr": 0.9514953919372996,
+  "val_mse_K2": 0.00018423246310349738,
+  "val_mse_K2_physical": 0.08617763045351694,
+  "val_mse_norm2": 0.00018423246310349738,
+  "val_predicted_residual_rms_K": 0.013968360527668096,
+  "val_predicted_residual_rms_K_physical": 0.3021061948540319,
+  "val_predicted_residual_rms_norm": 0.013968360527668096,
+  "val_required_residual_rms_K": 0.018760996541283305,
+  "val_required_residual_rms_K_physical": 0.4057608096190046,
+  "val_required_residual_rms_norm": 0.018760996541283305,
+  "val_rmse_K": 0.013573225965241182,
+  "val_rmse_K_physical": 0.29356026715738787,
+  "val_rmse_norm": 0.013573225965241182,
+  "val_skill_vs_bilinear": 0.8255527712013583
+ },
+ "selection_rule": "min val_mse_K2; tie-breakers: smaller r, then Kx, then Ky",
+ "unit_patch": {
+  "created_note": "Stage 03 CCA grid scores and residuals are in normalized t2m_tgt units. Converted physical-K metrics use t2m_tgt std only.",
+  "input_mean_K": 277.8568272051984,
+  "input_std_K": 21.581598298286263,
+  "selection_unchanged_by_global_scale": true,
+  "skill_scale_invariant": true,
+  "source": "${DATA_ROOT}/zarr/awi_downscaling_train.zarr/.zattrs normalization_stats.t2m_tgt",
+  "target_mean_K": 277.8518781731243,
+  "target_std_K": 21.627892139211994
+ }
+}

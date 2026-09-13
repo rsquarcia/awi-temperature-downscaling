@@ -1,0 +1,9 @@
+# Scientific workflow dependencies; the small tests use NumPy and PyTorch.
+numpy==2.2.4
+scipy==1.15.2
+torch==2.5.1
+zarr==2.18.3
+numcodecs==0.13.1
+xarray==2025.1.2
+netCDF4==1.7.2
+matplotlib==3.10.0

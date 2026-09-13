@@ -1,0 +1,247 @@
+{
+ "algorithm": {
+  "cca_method": "center by train score means; covariances with 1/(n-1); optional ridge on Sxx/Syy; symmetric inverse sqrt via eigh with relative eigenvalue floor; SVD of whitened cross-covariance; B = Sxx^{-1/2} U_r diag(rho_r) V_r^T Syy^{1/2}; all float64",
+  "covariance_strategy": "full-size Sxx (10592x10592), Sxy (10592x1024), Syy (1024x1024) computed once from centered train scores; every grid row slices the leading Kx/Ky blocks (truncated score means are prefixes of the full means)",
+  "eig_floor_rel": 1e-12,
+  "row_evaluation_caching": "X whitener cached per (Kx, alpha), Y whitener per (Ky, alpha), whitened cross-covariance SVD per (Kx, Ky, alpha); all valid r for a fixed (Kx, Ky, alpha) truncate the same decomposition. eigh/svd are deterministic on identical inputs, so results are bit-identical to refitting every row; only redundant recomputation is removed. Same formulas, same eig_floor_rel, ridge unchanged at [0.0].",
+  "val_norm_day_batch": 16
+ },
+ "contract_version": "2026-07-04.stage03.kx10592.v1",
+ "expected_grid_shape": [
+  1280,
+  2624
+ ],
+ "expected_n_pixels": 3358720,
+ "expected_source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+ "expected_train_days": 10593,
+ "expected_val_days": 1095,
+ "expected_val_shards": 9,
+ "expected_valid_rows": 465,
+ "grid": {
+  "kx_values": [
+   4,
+   8,
+   16,
+   32,
+   64,
+   128,
+   256,
+   512,
+   1024,
+   2048,
+   4096,
+   8192,
+   10592
+  ],
+  "ky_values": [
+   4,
+   8,
+   16,
+   32,
+   64,
+   128,
+   256,
+   512,
+   1024
+  ],
+  "r_values": [
+   4,
+   8,
+   16,
+   32,
+   64,
+   128,
+   256,
+   512,
+   1024
+  ],
+  "ridge_alpha_values": [
+   0.0
+  ]
+ },
+ "grid_valid_rule": "r <= min(Kx, Ky); no unplanned selectable rows may be added to this config",
+ "heavy_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy",
+ "home_output_root": "${RESULTS_ROOT}/cca_final_run/outputs",
+ "intended_outputs": {
+  "canonical_spectrum_csv": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/canonical_correlation_spectrum_selected.csv",
+  "grid_results_csv": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/cca_grid_results.csv",
+  "grid_results_jsonl": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/cca_grid_results.jsonl",
+  "grid_summary_json": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/cca_grid_summary.json",
+  "heavy_artifact_manifest_json": null,
+  "metric_constants_json": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/metric_constants.json",
+  "profiled_kx_ky_csv": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/profiled_kx_ky_validation.csv",
+  "selected_metadata_json": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/selected_cca_metadata.json",
+  "selected_model_npz": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/selected_cca_model.npz",
+  "sensitivity_slices_csv": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/sensitivity_slices_selected.csv",
+  "stage_status_json": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/stage03_status.json"
+ },
+ "intended_outputs_note": "All Stage 03 production outputs are small (largest: selected_cca_model.npz, B is at most 10592x1024 float64 ~ 87 MB) and live under home outputs/cca_grid/. No production scratch outputs are used, so heavy_artifact_manifest_json is null. Smoke outputs go to smoke_output_root on scratch.",
+ "kx_max": 10592,
+ "ky_max": 1024,
+ "metric": {
+  "mse_normalization": "SSE / (n_samples * n_pixels); Stage 01 area weights are normalized to mean 1",
+  "name": "full-field area-weighted residual-correction MSE/RMSE (K^2 / K)",
+  "skill": "1 - mse_model / mse_bilinear, where mse_bilinear is the exact area-weighted MSE of the raw (uncentered) residual field",
+  "sse_identity": "SSE = C_centered + sum(yhat^2) - 2*sum(yhat*y_true_retained), exact because the Stage 01 Y EOFs are weighted-space orthonormal and Stage 02 Y scores are the coordinates of the centered residual in that basis",
+  "train_constants_source": "Stage 01 y basis members total_weighted_sum_squares and mean_field (raw = centered + n_train * ||mean||_w^2, exact because centered train residuals sum to zero)",
+  "val_constants_source": "compute-constants phase: exact streamed weighted norms of the validation residual shards (residual_path column); never touches sealed test"
+ },
+ "no_test_access": true,
+ "production_execution_approved": true,
+ "production_gates": {
+  "config_flag": "production_execution_approved must be true",
+  "environment": "CCA_STAGE03_ENABLE_REAL_RUN=1 must be set",
+  "note": "Heavy phases (compute-constants, run-grid) refuse to run unless BOTH gates are open."
+ },
+ "purpose": "Fit the FINAL max-rank CCA grid in EOF score space on TRAIN scores only, evaluate every valid row on validation full-field area-weighted MSE via the exact orthonormal score-space SSE identity, and select the minimum-validation-MSE row. Train-fit / validation-selected; sealed test untouched. Kx extended to 10592 = n_train - 1 (rank terminus of the centered training data) because both the 20260703 run (Kx=512) and the kx4096 run (Kx=4096, r=512) boundary-selected; r extended to 1024 = Ky_max for the same reason.",
+ "run_id": "cca_final_run_20260704_kx10592",
+ "safety": {
+  "atomic_writes": "unique temp filename per job/pid/time_ns + os.replace; no shared temp filenames",
+  "home_heavy_outputs_allowed": false,
+  "resume_protocol": "done JSON identity strict-equality; mismatched/tampered done JSONs are refused, never silently reused; no config-level output-existence blocker (Stage 02 hygiene lesson)",
+  "sealed_test_untouched": true,
+  "sealed_token_guards": [
+   "awi_downscaling_test",
+   "sealed",
+   "holdout",
+   "path-segment 'test'"
+  ],
+  "work_is_read_only_for_new_outputs": true
+ },
+ "score_inputs": {
+  "train_x": {
+   "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/train_x_scores_maxK10592.npy.done.json",
+   "expected_done_sha256": "33880e72afe598ba31addf0ef798f3ebeb2fac0643125e0fcfc7c7b580bbb670",
+   "expected_ident": {
+    "basis_done_sha256": "d2a4dfa181e27509346aa7dcfcadbf749cb5cc25de6f97b487ccc99c4379dd03",
+    "basis_npz": "/scratch/a/a270313/awi_eval/cca_final_run_20260704_kx10592/outputs_heavy/eof_bases/x_input_eof_basis_maxK10592.npz",
+    "chunk_days": 1024,
+    "config_sha256": "2afe7ae975d8b19f76908633697e376ff9b808273a6e4b1162b7fe7fec642da7",
+    "grid_shape": [
+     1280,
+     2624
+    ],
+    "kind": "x_input",
+    "max_modes": 10592,
+    "mode": "production",
+    "n_chunks": 11,
+    "n_samples": 10593,
+    "output_shape": [
+     10593,
+     10592
+    ],
+    "phase": "assemble-scores",
+    "source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+    "split": "train",
+    "stage": "02_project_eof_scores"
+   },
+   "path": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/train_x_scores_maxK10592.npy"
+  },
+  "train_y": {
+   "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/train_y_scores_maxK1024.npy.done.json",
+   "expected_done_sha256": "25079db658ae4ad92488826d77e8d4a8a94c570792bda6d45b324285d2b44d20",
+   "expected_ident": {
+    "basis_done_sha256": "bb6bf5fa60a2f04122740236f260dbd3ef7bca09cbf33e7e90340e9a391dc18c",
+    "basis_npz": "/scratch/a/a270313/awi_eval/cca_final_run_20260703/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz",
+    "chunk_days": 1024,
+    "config_sha256": "999bad1a595928b249b835d9c371bdfb0c5bffe1935f02f2c7214614d9d0a703",
+    "grid_shape": [
+     1280,
+     2624
+    ],
+    "kind": "y_residual",
+    "max_modes": 1024,
+    "mode": "production",
+    "n_chunks": 11,
+    "n_samples": 10593,
+    "output_shape": [
+     10593,
+     1024
+    ],
+    "phase": "assemble-scores",
+    "source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+    "split": "train",
+    "stage": "02_project_eof_scores"
+   },
+   "path": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/train_y_scores_maxK1024.npy"
+  },
+  "val_x": {
+   "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_x_scores_maxK10592.npy.done.json",
+   "expected_done_sha256": "5958bdc673df96ca19d5a10b4856e0f35883f865c8cc420518ac550e7c9f98f7",
+   "expected_ident": {
+    "basis_done_sha256": "d2a4dfa181e27509346aa7dcfcadbf749cb5cc25de6f97b487ccc99c4379dd03",
+    "basis_npz": "/scratch/a/a270313/awi_eval/cca_final_run_20260704_kx10592/outputs_heavy/eof_bases/x_input_eof_basis_maxK10592.npz",
+    "chunk_days": 1024,
+    "config_sha256": "2afe7ae975d8b19f76908633697e376ff9b808273a6e4b1162b7fe7fec642da7",
+    "grid_shape": [
+     1280,
+     2624
+    ],
+    "kind": "x_input",
+    "max_modes": 10592,
+    "mode": "production",
+    "n_chunks": 2,
+    "n_samples": 1095,
+    "output_shape": [
+     1095,
+     10592
+    ],
+    "phase": "assemble-scores",
+    "source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+    "split": "val",
+    "stage": "02_project_eof_scores"
+   },
+   "path": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_x_scores_maxK10592.npy"
+  },
+  "val_y": {
+   "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_y_scores_maxK1024.npy.done.json",
+   "expected_done_sha256": "3970d9acd203cfbd973a2587c98604498b522e87034bd56b2a5ee7aa491e933d",
+   "expected_ident": {
+    "basis_done_sha256": "bb6bf5fa60a2f04122740236f260dbd3ef7bca09cbf33e7e90340e9a391dc18c",
+    "basis_npz": "/scratch/a/a270313/awi_eval/cca_final_run_20260703/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz",
+    "chunk_days": 1024,
+    "config_sha256": "999bad1a595928b249b835d9c371bdfb0c5bffe1935f02f2c7214614d9d0a703",
+    "grid_shape": [
+     1280,
+     2624
+    ],
+    "kind": "y_residual",
+    "max_modes": 1024,
+    "mode": "production",
+    "n_chunks": 2,
+    "n_samples": 1095,
+    "output_shape": [
+     1095,
+     1024
+    ],
+    "phase": "assemble-scores",
+    "source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+    "split": "val",
+    "stage": "02_project_eof_scores"
+   },
+   "path": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_y_scores_maxK1024.npy"
+  }
+ },
+ "selection_rule": "minimum val_mse_K2; tie-breakers: smaller r, then smaller Kx, then smaller Ky",
+ "smoke": {
+  "non_scientific_smoke": true,
+  "not_final_cca_grid": true,
+  "not_for_selection": true,
+  "smoke_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/stage03_smoke"
+ },
+ "source_manifest": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/fullres-br-shards-20260625T155202Z/manifests/fullres_br_shards_manifest.tsv",
+ "stage": "03_run_cca_grid",
+ "tmp_root": "${RESULTS_ROOT}/tmp/cca_final_run_20260704_kx10592",
+ "train_fit_only": true,
+ "units_note": "Stage 03 scores/residuals are in normalized t2m_tgt units; metric columns with suffix _K/_K2 are legacy normalized values. Physical-K columns are added by the documented unit patch using t2m_tgt std 21.627892139211994 K, identical to the 20260703 convention (selection and skill are scale-invariant).",
+ "validation_used_for_selection_only": true,
+ "y_basis": {
+  "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz.done.json",
+  "expected_bytes": 13770818444,
+  "expected_done_sha256": "bb6bf5fa60a2f04122740236f260dbd3ef7bca09cbf33e7e90340e9a391dc18c",
+  "expected_train_centered_weighted_sse": 12703435.99317823,
+  "note": "Stage 03 only reads the SMALL members total_weighted_sum_squares and mean_field through the 64 MiB size-guarded loader; eofs_weighted is never touched.",
+  "npz": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz"
+ },
+ "y_reuse_note": "Y basis and Y train/val scores are REUSED 20260703 artifacts, reached through symlinks under this run's outputs_heavy tree (kx10592); their done-JSON sha256 pins and expected idents are copied verbatim from the completed 20260703 Stage 03 config and re-verified. Provenance: outputs_heavy/REUSE_MANIFEST.json. The expected_ident basis_npz/path strings inside the Y done JSONs intentionally still name the 20260703 scratch tree (the done JSONs are the original files)."
+}

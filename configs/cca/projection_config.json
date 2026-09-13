@@ -1,0 +1,114 @@
+{
+ "algorithm": {
+  "basis_access": "ZIP_STORED npz member np.memmap; eofs_weighted is never fully loaded; small members loaded through a 64 MiB size-guarded loader",
+  "chunk_days": 1024,
+  "matmul_chunk_pixels_default": 8192,
+  "method": "day-chunk streaming projection; outer loop over spatial pixel blocks so basis memmap and shards are each read once per chunk; float32 anomalies, float64 accumulation, float32 stored scores",
+  "pixel_block_pixels": 65536,
+  "train_chunks": 11,
+  "train_end_to_end_check": "assembled train score column norms must match Stage 01 singular_values (scores = U*s) to 1e-3 relative to s1",
+  "val_chunks": 2
+ },
+ "contract_version": "2026-07-04.stage02.kx10592.v1",
+ "expected_grid_shape": [
+  1280,
+  2624
+ ],
+ "expected_train_days": 10593,
+ "expected_train_shards": 83,
+ "expected_val_days": 1095,
+ "expected_val_shards": 9,
+ "heavy_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy",
+ "home_heavy_outputs_allowed": false,
+ "home_output_root": "${RESULTS_ROOT}/cca_final_run/outputs",
+ "intended_heavy_outputs": {
+  "train_x_scores": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/train_x_scores_maxK10592.npy",
+  "val_x_scores": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_x_scores_maxK10592.npy"
+ },
+ "intended_outputs": {
+  "heavy_artifact_manifest_json": "${RESULTS_ROOT}/cca_final_run/outputs/projections/heavy_artifact_manifest.json",
+  "projection_metadata_json": "${RESULTS_ROOT}/cca_final_run/outputs/projections/projection_metadata.json",
+  "stage_status_json": "${RESULTS_ROOT}/cca_final_run/outputs/projections/stage02_status.json"
+ },
+ "kind_configs": {
+  "x_input": {
+   "basis_done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/x_input_eof_basis_maxK10592.npz.done.json",
+   "basis_label": "x_input",
+   "basis_npz": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/x_input_eof_basis_maxK10592.npz",
+   "expected_basis_ident": {
+    "block_pixels": 65536,
+    "config_sha256": "11668b6d074da156b3b010aed8abb09f4ff8a7802b16c7fdd4db9105964c7939",
+    "grid_shape": [
+     1280,
+     2624
+    ],
+    "k": 10592,
+    "kind": "x_input",
+    "max_modes": 10592,
+    "mode": "production",
+    "n_train": 10593,
+    "phase": "assemble",
+    "stage": "01_build_eof_bases",
+    "train_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363"
+   },
+   "max_modes": 10592,
+   "outputs": {
+    "train": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/train_x_scores_maxK10592.npy",
+    "val": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_x_scores_maxK10592.npy"
+   },
+   "source_manifest_column": "baseline_path",
+   "work_dir": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/stage02_work/x_input"
+  }
+ },
+ "mean_source": "mean_field member of the Stage 01 basis NPZ (no mean refit)",
+ "no_mean_refit": true,
+ "no_new_eof_fit": true,
+ "no_test_access": true,
+ "production_execution_approved": true,
+ "production_gates": {
+  "config_flag": "production_execution_approved must be true",
+  "environment": "CCA_STAGE02_ENABLE_REAL_RUN=1 must be set",
+  "note": "Heavy phases (project-chunk, assemble-scores) refuse to run unless BOTH gates are open."
+ },
+ "projection_formula": "score = ((field - train_mean) * sqrt_weight) dot eofs_weighted.T",
+ "purpose": "Project train and validation fields onto the FIXED train-only Stage 01 EOF bases. No new EOFs are fit, no means are refit, no validation-dependent transformation is learned.",
+ "run_id": "cca_final_run_20260704_kx10592",
+ "safety": {
+  "atomic_writes": "unique temp filename per job/pid/time_ns + os.replace; no shared temp filenames (Stage 01 reduce-gram race lesson)",
+  "heavy_arrays_scratch_only": true,
+  "home_lightweight_metadata_only": true,
+  "resume_protocol": "done JSON identity strict-equality; mismatched/tampered done JSONs are refused, never silently reused",
+  "sealed_test_untouched": true,
+  "sealed_token_guards": [
+   "awi_downscaling_test",
+   "sealed",
+   "holdout",
+   "path-segment 'test'"
+  ]
+ },
+ "scratch_is_archival": false,
+ "scratch_lifetime_days_since_last_access": 14,
+ "smoke": {
+  "non_scientific_smoke": true,
+  "not_final_projection": true,
+  "not_for_selection": true,
+  "smoke_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/stage02_smoke"
+ },
+ "source_train_manifest": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/fullres-br-shards-20260625T155202Z/manifests/fullres_br_shards_manifest.tsv",
+ "sqrt_weighting_convention": "sqrt(cos(lat_center)/mean(cos(lat_center))) from grid-formula lat centers -90 + (i+0.5)*180/1280, identical to Stage 01 heavy phases; basis latitude member cross-checked to <= 1e-4 deg",
+ "stage": "02_project_eof_scores",
+ "storage_estimate_bytes": {
+  "stage02_work_chunks_upper_bound": 954466304,
+  "train_x_scores_float32": 448804224,
+  "val_x_scores_float32": 46392960
+ },
+ "tmp_root": "${RESULTS_ROOT}/tmp/cca_final_run_20260704_kx10592",
+ "validation_projection_allowed": true,
+ "work_is_read_only_for_new_outputs": true,
+ "y_residual_reuse": {
+  "policy": "Y train/val scores are REUSED from cca_final_run_20260703 (maxKy=1024) and are intentionally absent from kind_configs so Stage 02 cannot re-project Y in this root.",
+  "reused_train_y_scores": "${RESULTS_ROOT}/cca_final_run_20260703/outputs_heavy/projections/train_y_scores_maxK1024.npy",
+  "reused_val_y_scores": "${RESULTS_ROOT}/cca_final_run_20260703/outputs_heavy/projections/val_y_scores_maxK1024.npy",
+  "symlinked_under": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/"
+ }
+}

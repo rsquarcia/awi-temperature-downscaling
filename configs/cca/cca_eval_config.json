@@ -1,0 +1,240 @@
+{
+ "algorithm": {
+  "block_rows": 64,
+  "eofs_access": "ZIP_STORED member memmap, first Ky=512 modes only (~6.9 GiB streamed per chunk)",
+  "note": "row-block dense reconstruction: for each latitude block, resid_hat = mean_field + (yhat @ eofs_weighted[:Ky, block]) / sqrt_w; float64 accumulation from float32 sources; blocks keep full longitude rows so zonal FFTs are computed in-block"
+ },
+ "chunking": {
+  "eval_chunk_array": "eval-chunk takes --chunk-index from SLURM_ARRAY_TASK_ID; submit with an explicit --array=0-8",
+  "no_full_day_fields": "per-day dense prediction fields are never written; only float64 accumulators (day sums, pixel maps, spectra sums) go to scratch",
+  "reduce_singleton": "reduce-eval is a singleton; submit with --array=0-0",
+  "unit": "one chunk per validation shard (9 chunks, day ranges from the manifest)"
+ },
+ "consistency": {
+  "baseline_rmse_rel_tol": 1e-08,
+  "cca_rmse_rel_tol": 1e-05,
+  "note": "baseline check compares the identical data path (same shards, same weights) so its tolerance is tight; CCA checks compare the dense reconstruction against the Stage 03 orthonormal score-space identity, whose agreement is limited by the float32 basis orthonormality (~8e-10) and score storage",
+  "physical_conversion_rel_tol": 1e-12,
+  "skill_rel_tol": 1e-05
+ },
+ "contract_version": "2026-07-05.stage04.kx10592.v1",
+ "expected_grid_shape": [
+  1280,
+  2624
+ ],
+ "expected_n_pixels": 3358720,
+ "expected_source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+ "expected_val_days": 1095,
+ "expected_val_shards": 9,
+ "heavy_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy",
+ "home_output_root": "${RESULTS_ROOT}/cca_final_run/outputs",
+ "intended_heavy_outputs": {
+  "chunk_accumulators_dir": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/full_validation_eval/chunk_accumulators",
+  "spatial_maps_npz": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/full_validation_eval/spatial_maps_selected_cca_validation.npz",
+  "spectra_npz": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/full_validation_eval/spectra_selected_cca_validation.npz"
+ },
+ "intended_outputs": {
+  "dense_vs_stage03_consistency_json": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/dense_vs_stage03_consistency.json",
+  "heavy_artifact_manifest_json": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/heavy_artifact_manifest.json",
+  "key_metrics_csv": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/key_metrics.csv",
+  "normalization_audit_json": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/normalization_audit.json",
+  "regional_performance_summary_csv": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/regional_performance_summary.csv",
+  "selected_cca_validation_metrics_json": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/selected_cca_validation_metrics.json",
+  "stage04_status_json": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/stage04_status.json",
+  "time_series_daily_metrics_csv": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/time_series_daily_metrics.csv",
+  "validation_summary_csv": "${RESULTS_ROOT}/cca_final_run/outputs/full_validation_eval/validation_summary.csv"
+ },
+ "kx_max": 10592,
+ "ky_max": 1024,
+ "no_model_fitting": true,
+ "no_test_access": true,
+ "normalization": {
+  "convention": "shards/scores/EOF bases are in normalized t2m_tgt units; error_K = error_norm * target_std_K; skill and correlations are invariant to this global scale",
+  "input_mean_K": 277.8568272051984,
+  "input_std_K": 21.581598298286263,
+  "source": "${DATA_ROOT}/zarr/awi_downscaling_train.zarr/.zattrs normalization_stats.t2m_tgt (recorded in Stage 03 unit_patch)",
+  "target_mean_K": 277.8518781731243,
+  "target_std_K": 21.627892139211994
+ },
+ "production_execution_approved": true,
+ "production_gates": {
+  "config_flag": "production_execution_approved must be true",
+  "environment": "CCA_STAGE04_ENABLE_REAL_RUN=1 must be set",
+  "note": "Heavy phases (eval-chunk, reduce-eval) refuse to run unless BOTH gates are open."
+ },
+ "purpose": "Dense full-validation evaluation of the SELECTED max-rank Stage 03 CCA model (Kx=10592=n_train-1, Ky=512, r=512, ridge 0.0): predict residual EOF scores from validation X scores, reconstruct the dense residual correction over all 1095 validation days, compare against the validation residual shards and the bilinear baseline, and produce global/spatial/regional/daily/spectral artifacts in explicit normalized and physical-Kelvin units. No fitting, no selection, sealed test untouched.",
+ "regions": {
+  "definitions_source": "${DATA_ROOT}/sbatch/second_stage_5model_prod_20260630T083152Z/code_snapshot/training/global_unet_second_stage.py region_masks()",
+  "elevation_threshold_m": 1000.0,
+  "highlat_upper_deg": 80.0,
+  "list": [
+   "global",
+   "land",
+   "ocean",
+   "elevation_gt_1000m",
+   "elevation_le_1000m",
+   "tropics",
+   "midlat_north",
+   "midlat_south",
+   "highlat_north",
+   "highlat_south",
+   "arctic_gt_80N",
+   "antarctic_lt_80S"
+  ],
+  "lsm_edge_convention": "land: lsm > 0.5; ocean: lsm < 0.5; pixels with lsm == 0.5 belong to neither (trainer convention)",
+  "lsm_threshold": 0.5,
+  "metric_convention": "mask-restricted area-weighted mean: sum(mask*w*e)/ (n_days * sum(mask*w)); identical ratio-of-weighted-sums to the U-Net TensorAccumulator, so the cos-lat weight normalization cancels",
+  "midlat_upper_deg": 60.0,
+  "tropics_lat_deg": 23.5
+ },
+ "run_id": "cca_final_run_20260704_kx10592",
+ "safety": {
+  "atomic_writes": "unique temp filename per job/pid/time_ns + os.replace; no shared temp filenames",
+  "home_heavy_outputs_allowed": false,
+  "resume_protocol": "done JSON identity strict-equality; mismatched/tampered done JSONs are refused, never silently reused; stale Stage 03 model/metadata is impossible because their sha256s are pinned here and re-verified by every phase",
+  "sealed_test_untouched": true,
+  "sealed_token_guards": [
+   "awi_downscaling_test",
+   "sealed",
+   "holdout",
+   "path-segment 'test'"
+  ],
+  "work_is_read_only_for_new_outputs": true
+ },
+ "score_inputs": {
+  "val_x": {
+   "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_x_scores_maxK10592.npy.done.json",
+   "expected_done_sha256": "5958bdc673df96ca19d5a10b4856e0f35883f865c8cc420518ac550e7c9f98f7",
+   "expected_ident": {
+    "basis_done_sha256": "d2a4dfa181e27509346aa7dcfcadbf749cb5cc25de6f97b487ccc99c4379dd03",
+    "basis_npz": "/scratch/a/a270313/awi_eval/cca_final_run_20260704_kx10592/outputs_heavy/eof_bases/x_input_eof_basis_maxK10592.npz",
+    "chunk_days": 1024,
+    "config_sha256": "2afe7ae975d8b19f76908633697e376ff9b808273a6e4b1162b7fe7fec642da7",
+    "grid_shape": [
+     1280,
+     2624
+    ],
+    "kind": "x_input",
+    "max_modes": 10592,
+    "mode": "production",
+    "n_chunks": 2,
+    "n_samples": 1095,
+    "output_shape": [
+     1095,
+     10592
+    ],
+    "phase": "assemble-scores",
+    "source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+    "split": "val",
+    "stage": "02_project_eof_scores"
+   },
+   "path": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_x_scores_maxK10592.npy"
+  },
+  "val_y": {
+   "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_y_scores_maxK1024.npy.done.json",
+   "expected_done_sha256": "3970d9acd203cfbd973a2587c98604498b522e87034bd56b2a5ee7aa491e933d",
+   "expected_ident": {
+    "basis_done_sha256": "bb6bf5fa60a2f04122740236f260dbd3ef7bca09cbf33e7e90340e9a391dc18c",
+    "basis_npz": "/scratch/a/a270313/awi_eval/cca_final_run_20260703/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz",
+    "chunk_days": 1024,
+    "config_sha256": "999bad1a595928b249b835d9c371bdfb0c5bffe1935f02f2c7214614d9d0a703",
+    "grid_shape": [
+     1280,
+     2624
+    ],
+    "kind": "y_residual",
+    "max_modes": 1024,
+    "mode": "production",
+    "n_chunks": 2,
+    "n_samples": 1095,
+    "output_shape": [
+     1095,
+     1024
+    ],
+    "phase": "assemble-scores",
+    "source_manifest_sha256": "9c68824fc1e032e14f9c9dd38e48b6afdc97311d472b26a5706c8f9fd02d4363",
+    "split": "val",
+    "stage": "02_project_eof_scores"
+   },
+   "path": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/projections/val_y_scores_maxK1024.npy"
+  }
+ },
+ "selected_model": {
+  "expected_selected": {
+   "Kx": 10592,
+   "Ky": 512,
+   "r": 512,
+   "ridge_alpha": 0.0
+  },
+  "expected_sha256": "e1e3dc68e6e9736032c34aa2a3b93b53869c3c4752d4e850cb8a70498410a934",
+  "npz": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/selected_cca_model.npz"
+ },
+ "selected_model_note": "B is 10592x512 float64 (~43.4 MB), under the 64 MiB small-member cap; val_x is 46 MB float32 (1095x10592). Dense reconstruction cost is unchanged vs 20260703 (Ky=512); the only extra work is the trivial (n,10592)@(10592,512) yhat matmul per chunk. The huge X EOF basis npz is never opened by Stage 04.",
+ "smoke": {
+  "non_scientific_smoke": true,
+  "not_final_full_eval": true,
+  "not_for_selection": true,
+  "smoke_output_root": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/stage04_smoke"
+ },
+ "source_manifest": "${DATA_ROOT}/experiment_registry/cca_baseline_residual_only_fullres/runs/fullres-br-shards-20260625T155202Z/manifests/fullres_br_shards_manifest.tsv",
+ "spectra": {
+  "computed_in": "eval-chunk",
+  "convention": "U-Net SpectraAccumulator: coeff = rfft(field, axis=longitude)/width; power = |coeff|^2; cosine-latitude weighted mean over rows; averaged over validation days; scaled by target_std_K^2 to K^2 at save time",
+  "disable_note": "if enabled=false, eval-chunk skips power accumulation and reduce-eval records the deferral explicitly in stage04_status.json instead of silently omitting spectra",
+  "enabled": true,
+  "fields": [
+   "target",
+   "baseline",
+   "prediction",
+   "model_error",
+   "baseline_error"
+  ]
+ },
+ "stage": "04_evaluate_selected_cca",
+ "stage03": {
+  "expected_constants": {
+   "train_centered_weighted_sse": 12703435.993178232,
+   "train_mean_weighted_norm2": 2363.452341694817,
+   "train_raw_weighted_sse": 37739486.64875142,
+   "val_centered_weighted_sse": 1294493.0595564481,
+   "val_raw_weighted_sse": 3884096.426731987
+  },
+  "expected_grid_summary_sha256": "b4bc1d1fa2fa110858873e69b5c02257e51a11df1e35ab4b192fd27e7c6d6c7a",
+  "expected_metric_constants_sha256": "5842ed4ad292b644f67785b5e0c7a2ebc237bb6008a735af4a419c4b5d81f554",
+  "expected_selected_metadata_sha256": "a2cf364f4a8591329e00df6532d2e52fadd742452fb0acebe71eac34da620ce4",
+  "expected_selected_val_metrics": {
+   "val_mse_norm2": 0.00018423246310349738,
+   "val_rmse_K_physical": 0.29356026715738787,
+   "val_rmse_norm": 0.013573225965241182,
+   "val_skill_vs_bilinear": 0.8255527712013583
+  },
+  "grid_summary_json": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/cca_grid_summary.json",
+  "metric_constants_json": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/metric_constants.json",
+  "selected_metadata_json": "${RESULTS_ROOT}/cca_final_run/outputs/cca_grid/selected_cca_metadata.json"
+ },
+ "statics": {
+  "orography_nc": {
+   "expected_sha256": "9443b2640dba5d48ee1dd845f1780e0acc3bdc80e7abbb3ef6f81e02db21660e",
+   "note": "range approx -162..5843 m; interpreted directly as meters, exactly as the U-Net trainer elevation diagnostics do",
+   "path": "${DATA_ROOT}/grids/oro_hr.nc",
+   "units": "meters",
+   "var": "var129"
+  },
+  "surface_fractions_nc": {
+   "cl_var": "cl",
+   "expected_sha256": "cfbd3ea57b526eb2acbb0465c831deeead568cc9735f1d1300eeb5015e6229a6",
+   "lat_var": "lat",
+   "lon_var": "lon",
+   "lsm_var": "lsm",
+   "path": "${DATA_ROOT}/grids/static_masks/surface_fractions_hr.nc"
+  }
+ },
+ "tmp_root": "${RESULTS_ROOT}/tmp/cca_final_run_20260704_kx10592",
+ "y_basis": {
+  "access_note": "ZIP_STORED npz: eofs_weighted only via the explicit ZIP member np.memmap pattern (npz_member_memmap); mean_field/latitude through the 64 MiB size-guarded loader; never np.load(mmap_mode=...).",
+  "done_json": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz.done.json",
+  "expected_bytes": 13770818444,
+  "expected_done_sha256": "bb6bf5fa60a2f04122740236f260dbd3ef7bca09cbf33e7e90340e9a391dc18c",
+  "npz": "${RESULTS_ROOT}/cca_final_run/outputs_heavy/eof_bases/y_residual_eof_basis_maxK1024.npz"
+ }
+}

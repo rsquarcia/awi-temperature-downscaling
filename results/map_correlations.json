@@ -1,0 +1,18 @@
+{
+ "description": "Correlation of each transfer-climate per-cell U-Net RMSE map with the present-day per-cell U-Net RMSE map. 'area_weighted' uses cosine-latitude weights. The manuscript quotes the area-weighted Pearson values.",
+ "n_cells": 3358720,
+ "map_correlations": {
+  "mid_holocene": {
+   "pearson_unweighted": 0.9780670767579108,
+   "spearman_unweighted": 0.9711282360410185,
+   "pearson_area_weighted": 0.975931719989075,
+   "spearman_area_weighted": 0.9742838003713453
+  },
+  "ssp585": {
+   "pearson_unweighted": 0.936867808776266,
+   "spearman_unweighted": 0.9002854496601748,
+   "pearson_area_weighted": 0.9342860558541007,
+   "spearman_area_weighted": 0.9270978271759763
+  }
+ }
+}

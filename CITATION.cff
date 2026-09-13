@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "Please cite the accompanying paper when using this code or its results. Publication details will be added when available."
+title: "Generalization and Interpretability of U-Net and EOF–CCA in Temperature Downscaling Across Climates"
+type: software
+authors:
+  - given-names: Riccardo
+    family-names: Squarcia
+    affiliation: "Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research"
+  - given-names: Nina
+    family-names: Öhlckers
+    affiliation: "Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research"
+  - given-names: Alexander
+    family-names: Thorneloe
+    affiliation: "Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research"
+  - given-names: Gerrit
+    family-names: Lohmann
+    affiliation: "Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research"
+keywords:
+  - temperature downscaling
+  - U-Net
+  - canonical correlation analysis
+  - climate generalization
