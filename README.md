@@ -1,6 +1,6 @@
 # Temperature downscaling across climates
 
-Code accompanying **Generalization and Interpretability of U-Net and EOF–CCA in Temperature Downscaling Across Climates**.
+Code accompanying **Diagnosing Temperature Super-Resolution Across Climate States: A Perfect-Model Comparison of U-Net and EOF–CCA**.
 
 We compare residual U-Net and EOF–CCA against bilinear interpolation for daily 2-m temperature downscaling. Models trained on present-day simulations are applied unchanged to present-day, mid-Holocene and SSP5-8.5 data.
 
