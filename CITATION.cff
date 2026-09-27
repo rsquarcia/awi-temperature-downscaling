@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "Please cite the accompanying paper when using this code or its results. Publication details will be added when available."
-title: "Generalization and Interpretability of U-Net and EOF–CCA in Temperature Downscaling Across Climates"
+title: "Diagnosing Temperature Super-Resolution Across Climate States: A Perfect-Model Comparison of U-Net and EOF–CCA"
 type: software
 authors:
   - given-names: Riccardo
